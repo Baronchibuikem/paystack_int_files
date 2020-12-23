@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Neo;X Pay</title>
+
+    {% load static %}
+    <!-- =================================== -->
+    <!-- BASE VENDOR CSS -->
+    <!-- =================================== -->
+    <link rel="stylesheet" 
+        href="{% static 'app_payment/base/vendor/bootstrap/bootstrap-3.3.4-dist/css/bootstrap.min.css' %}">
+    <!-- =================================== -->
+    <!-- BASE CUSTOM CSS -->
+    <!-- =================================== -->
+    <link rel="stylesheet" 
+        href="{% static 'app_payment/base/main/css/template_dark.css'%}">
+</head>
+<body>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="alert alert-info">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!-- Include the PayPal JavaScript SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id={{paypal_client_id}}&currency=USD"></script>
+    <script>
+    const PAYPAL_AMOUNT = "{{paystack.amount}}"
+
+    paypal.Buttons(
+        {
+            createOrder: function(data, actions) {
+                //This function sets up the details of the transaction,
+                //including the amount and line item details.
+                return actions.order.create(
+                    {
+                        purchase_units: [
+                            {
+                                amount: {
+                                    value: PAYPAL_AMOUNT
+                                }
+                            }
+                        ]
+                    }
+                );
+            },
+            onApprove: function(data, actions) {
+                // This function captures the funds from the transaction.
+                return actions.order.capture().then(
+                    function(details) {
+                        //reload the page with a query-param
+                        window.location.replace(
+                            window.location+"?paypal_success=true"
+                        )
+                    }
+                );
+            }
+    }
+    ).render('#paypal-button-container');
+    </script>
+
+    <h3 class="text-center mb-4">
+        Pay for your plan
+    </h3>
+    <div class="row">
+        <div class="col-6">
+            <p>trtr</p>
+            <form method="POST">
+                {% csrf_token %}
+                <!-- Include the PayStack JavaScript SDK -->
+                <script
+                src="https://js.paystack.co/v1/inline.js"
+                data-key="{{ paystack.public_key }}"
+                data-email="{{ paystack.email }}"
+                data-amount="{{ paystack.amount }}"
+                data-ref="{{ paystack.reference }}"
+                data-currency="{{currency}}">
+                </script>
+            </form>
+        </div>
+        <div class="col-6" onload="paypay_render()">
+            <p>tror</p>
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+    <!-- =================================== -->
+    <!-- BASE VENDOR SCRIPTS -->
+    <!-- =================================== -->
+    <script type="text/javascript" 
+        src="{% static 'app_payment/base/vendor/jquery/jquery-2.1.3.js'%}">
+    </script>
+    <script type="text/javascript" 
+        src="{% static 'app_payment/base/vendor/jquery/jquery.cookie-1.4.1.js'%}">
+    </script>
+    <script type="text/javascript"
+        src="{% static 'app_payment/base/vendor/bootstrap/bootstrap-3.3.4-dist/js/bootstrap.min.js'%}">
+    </script>
+    <script type="text/javascript" 
+        src="{% static 'app_payment/base/vendor/vue/vue.js'%}">
+    </script>
+    <!-- =================================== -->
+    <!-- BASE CUSTOM SCRIPTS -->
+    <!-- =================================== -->
+    <script type="text/javascript"
+        src="{% static 'app_payment/base/main/js/com_jquery_easing.min.js'%}">
+    </script>
+    <script type="text/javascript"
+        src="{% static 'app_payment/base/main/js/com_template.js'%}">
+    </script>
+</body>
+</html>
